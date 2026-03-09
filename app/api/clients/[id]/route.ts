@@ -2,6 +2,8 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { updateClientSchema } from "@/lib/validators/client-update.schema";
+
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -33,4 +35,34 @@ return NextResponse.json({
   totals: { totalSales, totalPayments, debt },
 });
  
+}
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
+  const json = await req.json();
+  const parsed = updateClientSchema.safeParse(json);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Validation error", details: parsed.error.flatten() },
+      { status: 400 }
+    );
+  }
+
+  const updated = await prisma.client.update({
+    where: { id },
+    data: parsed.data,
+  });
+
+  return NextResponse.json(updated);
+}
+
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
+  // якщо є зв’язки і onDelete: Cascade — продажі/оплати видаляться автоматично
+  await prisma.client.delete({ where: { id } });
+
+  return NextResponse.json({ ok: true });
 }
