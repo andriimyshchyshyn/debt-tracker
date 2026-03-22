@@ -17,19 +17,22 @@ export default function ClientsPage() {
   const [name, setName] = useState("");
   const [adding, setAdding] = useState(false);
 
-  async function load() {
-    setErr(null);
-    setLoading(true);
-    try {
-      const data = await apiFetch<ClientSummary[]>("/api/clients/summary");
-      setItems(data);
-    } catch (e: any) {
-      if (e?.message === "UNAUTHORIZED") { router.push("/login"); return; }
-      setErr("Не вдалося завантажити список клієнтів");
-    } finally {
-      setLoading(false);
+  async function load(silent = false) {
+  if (!silent) setLoading(true);
+  setErr(null);
+  try {
+    const data = await apiFetch<ClientSummary[]>("/api/clients/summary");
+    setItems(data);
+  } catch (e: any) {
+    if (e?.message === "UNAUTHORIZED") {
+      router.push("/login");
+      return;
     }
+    if (!silent) setErr("Не вдалося завантажити список клієнтів");
+  } finally {
+    if (!silent) setLoading(false);
   }
+}
 
   async function addClient(e: React.FormEvent) {
     e.preventDefault();
@@ -48,7 +51,12 @@ export default function ClientsPage() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+     load();
+
+     const interval = setInterval(() => load(true), 5000);
+      return () => clearInterval(interval);
+    }, []);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
