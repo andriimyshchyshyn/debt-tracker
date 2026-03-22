@@ -30,24 +30,32 @@ export default function ClientDetailPage({ params }: PageProps) {
     params.then((p) => setClientId(p.id));
   }, [params]);
 
-  async function load(id: string) {
-    setLoading(true);
-    try {
-      const data = await apiFetch<{ client: ClientDetail; totals: Totals }>(
-        `/api/clients/${id}`
-      );
-      setClient(data.client);
-      setTotals(data.totals);
-    } catch (e: any) {
-      if (e?.message === "UNAUTHORIZED") router.push("/login");
-    } finally {
-      setLoading(false);
-    }
+  async function load(id: string, silent = false) {
+  if (!silent) setLoading(true);
+  try {
+    const data = await apiFetch<{ client: ClientDetail; totals: Totals }>(
+      `/api/clients/${id}`
+    );
+    setClient(data.client);
+    setTotals(data.totals);
+  } catch (e: any) {
+    if (e?.message === "UNAUTHORIZED") router.push("/login");
+  } finally {
+    if (!silent) setLoading(false);
   }
+}
 
   useEffect(() => {
-    if (clientId) load(clientId);
-  }, [clientId]);
+  if (!clientId) return;
+
+  // перший запит — зі спінером
+  load(clientId);
+
+  
+  const interval = setInterval(() => load(clientId, true), 5000);
+
+  return () => clearInterval(interval);
+}, [clientId]);
 
   // Після успішного додавання — закриваємо модалку і перезавантажуємо
   function handleSuccess() {
