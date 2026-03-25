@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
-
-import { ClientDetail, Totals } from "./_components/types";
+import { ClientDetail, Totals, formatUAH } from "./_components/types";
 import { ClientDetailHeader } from "./_components/ClientDetailHeader";
 import { TotalsCard } from "./_components/TotalsCard";
 import { TransactionList } from "./_components/TransactionList";
@@ -24,43 +23,65 @@ export default function ClientDetailPage({ params }: PageProps) {
   const [totals, setTotals] = useState<Totals | null>(null);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<Modal>(null);
+  const [closing, setClosing] = useState(false);
 
-  // Розкриваємо params (Next.js 16+ — це Promise)
   useEffect(() => {
     params.then((p) => setClientId(p.id));
   }, [params]);
 
   async function load(id: string, silent = false) {
-  if (!silent) setLoading(true);
-  try {
-    const data = await apiFetch<{ client: ClientDetail; totals: Totals }>(
-      `/api/clients/${id}`
-    );
-    setClient(data.client);
-    setTotals(data.totals);
-  } catch (e: any) {
-    if (e?.message === "UNAUTHORIZED") router.push("/login");
-  } finally {
-    if (!silent) setLoading(false);
+    if (!silent) setLoading(true);
+    try {
+      const data = await apiFetch<{ client: ClientDetail; totals: Totals }>(
+        `/api/clients/${id}`
+      );
+      setClient(data.client);
+      setTotals(data.totals);
+    } catch (e: any) {
+      if (e?.message === "UNAUTHORIZED") router.push("/login");
+    } finally {
+      if (!silent) setLoading(false);
+    }
   }
-}
 
   useEffect(() => {
-  if (!clientId) return;
+    if (!clientId) return;
 
-  // перший запит — зі спінером
-  load(clientId);
+    load(clientId);
 
-  
-  const interval = setInterval(() => load(clientId, true), 5000);
+    const interval = setInterval(() => load(clientId, true), 5000);
 
-  return () => clearInterval(interval);
-}, [clientId]);
+    return () => clearInterval(interval);
+  }, [clientId]);
 
-  // Після успішного додавання — закриваємо модалку і перезавантажуємо
   function handleSuccess() {
     setModal(null);
     if (clientId) load(clientId);
+  }
+
+  async function closeDebt() {
+    if (!clientId || !totals) return;
+
+    const confirmed = window.confirm(
+      `Закрити борг ${formatUAH(totals.debt)}?\n\nБуде створена оплата на цю суму.`
+    );
+    if (!confirmed) return;
+
+    setClosing(true);
+    try {
+      await apiFetch(`/api/clients/${clientId}/close-debt`, {
+        method: "POST",
+      });
+      await load(clientId, true);
+    } catch (e: any) {
+      if (e?.message?.includes("Борг вже закритий")) {
+        alert("Борг вже закритий.");
+      } else {
+        alert("Не вдалося закрити борг. Спробуй ще раз.");
+      }
+    } finally {
+      setClosing(false);
+    }
   }
 
   if (loading || !client || !totals) {
@@ -89,6 +110,23 @@ export default function ClientDetailPage({ params }: PageProps) {
       <div className="fixed bottom-0 left-0 right-0 z-40">
         <div className="mx-auto max-w-md px-5 pb-8 pt-4
                         bg-gradient-to-t from-indigo-950/95 to-transparent">
+
+          {/* Кнопка закриття боргу — тільки якщо борг > 0, на всю ширину */}
+          {totals.debt > 0 && (
+            <button
+              onClick={closeDebt}
+              disabled={closing}
+              className="w-full mb-3 rounded-2xl bg-white/15 border border-white/20
+                         py-3 text-base font-semibold text-white shadow-lg
+                         active:scale-[0.98] disabled:opacity-60"
+            >
+              {closing
+                ? "Закриваємо..."
+                : `Закрити борг — ${formatUAH(totals.debt)}`}
+            </button>
+          )}
+
+          {/* Продаж і Оплата — поруч */}
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => setModal("sale")}
@@ -105,6 +143,7 @@ export default function ClientDetailPage({ params }: PageProps) {
               + Оплата
             </button>
           </div>
+
         </div>
       </div>
 
