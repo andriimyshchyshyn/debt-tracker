@@ -11,7 +11,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  
 }
 
 model Client {
@@ -24,6 +23,8 @@ model Client {
 
   sales     Sale[]
   payments  Payment[]
+
+  @@index([name])
 }
 
 model User {
@@ -43,6 +44,8 @@ model Sale {
 
   client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@index([clientId])
 }
 
 model Payment {
@@ -54,4 +57,6 @@ model Payment {
 
   client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@index([clientId])
 }

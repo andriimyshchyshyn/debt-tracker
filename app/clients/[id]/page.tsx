@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import { ClientDetail, Totals, formatUAH } from "./_components/types";
 import { ClientDetailHeader } from "./_components/ClientDetailHeader";
@@ -15,13 +16,13 @@ type PageProps = {
 
 type Modal = "sale" | "payment" | null;
 
+type ClientData = { client: ClientDetail; totals: Totals };
+
 export default function ClientDetailPage({ params }: PageProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [clientId, setClientId] = useState<string | null>(null);
-  const [client, setClient] = useState<ClientDetail | null>(null);
-  const [totals, setTotals] = useState<Totals | null>(null);
-  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<Modal>(null);
   const [closing, setClosing] = useState(false);
 
@@ -29,34 +30,23 @@ export default function ClientDetailPage({ params }: PageProps) {
     params.then((p) => setClientId(p.id));
   }, [params]);
 
-  async function load(id: string, silent = false) {
-    if (!silent) setLoading(true);
-    try {
-      const data = await apiFetch<{ client: ClientDetail; totals: Totals }>(
-        `/api/clients/${id}`
-      );
-      setClient(data.client);
-      setTotals(data.totals);
-    } catch (e: any) {
-      if (e?.message === "UNAUTHORIZED") router.push("/login");
-    } finally {
-      if (!silent) setLoading(false);
-    }
-  }
+  // ── Data fetching via TanStack Query ──────────────────────
+  const { data, isLoading } = useQuery<ClientData>({
+    queryKey: ["client-detail", clientId],
+    queryFn: () => apiFetch<ClientData>(`/api/clients/${clientId}`),
+    enabled: !!clientId,
+  });
 
-  useEffect(() => {
-    if (!clientId) return;
-
-    load(clientId);
-
-    const interval = setInterval(() => load(clientId, true), 5000);
-
-    return () => clearInterval(interval);
-  }, [clientId]);
+  const client = data?.client ?? null;
+  const totals = data?.totals ?? null;
 
   function handleSuccess() {
     setModal(null);
-    if (clientId) load(clientId);
+    if (clientId) {
+      queryClient.invalidateQueries({ queryKey: ["client-detail", clientId] });
+      // Also refresh the summary list so debt numbers are up to date
+      queryClient.invalidateQueries({ queryKey: ["clients-summary"] });
+    }
   }
 
   async function closeDebt() {
@@ -72,19 +62,21 @@ export default function ClientDetailPage({ params }: PageProps) {
       await apiFetch(`/api/clients/${clientId}/close-debt`, {
         method: "POST",
       });
-      await load(clientId, true);
-    } catch (e: any) {
-      if (e?.message?.includes("Борг вже закритий")) {
+      queryClient.invalidateQueries({ queryKey: ["client-detail", clientId] });
+      queryClient.invalidateQueries({ queryKey: ["clients-summary"] });
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message?.includes("Борг вже закритий")) {
         alert("Борг вже закритий.");
       } else {
-        alert("Не вдалося закрити борг. Спробуй ще раз.");
+        const msg = e instanceof Error ? e.message : "Невідома помилка";
+        alert(`Не вдалося закрити борг. Помилка: ${msg}`);
       }
     } finally {
       setClosing(false);
     }
   }
 
-  if (loading || !client || !totals) {
+  if (isLoading || !client || !totals) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-sky-700 via-sky-800 to-indigo-950
                       flex items-center justify-center">
