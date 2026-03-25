@@ -42,15 +42,19 @@ export async function POST(_req: Request, { params }: Ctx) {
 
     return NextResponse.json(payment, { status: 201 });
 
-  } catch (e: any) {
-    if (e?.message === "NO_DEBT") {
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message === "NO_DEBT") {
       return NextResponse.json(
         { error: "Борг вже закритий" },
         { status: 400 }
       );
     }
+    
+    // Log the actual error to the server console!
+    console.error("[CLOSE DEBT ERROR]", e);
+    
     return NextResponse.json(
-      { error: "Щось пішло не так" },
+      { error: e instanceof Error ? e.message : "Щось пішло не так" },
       { status: 500 }
     );
   }
