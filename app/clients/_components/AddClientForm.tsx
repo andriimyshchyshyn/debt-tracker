@@ -1,3 +1,5 @@
+import { Loader } from "@/app/components/Loader";
+
 type Props = {
   name: string;
   adding: boolean;
@@ -18,9 +20,9 @@ export function AddClientForm({ name, adding, onChangeName, onSubmit }: Props) {
         />
         <button
           disabled={adding}
-          className="w-14 rounded-xl bg-slate-900/80 text-white font-semibold shadow active:scale-[0.99] disabled:opacity-60"
+          className="w-14 flex items-center justify-center rounded-xl bg-slate-900/80 text-white font-semibold shadow active:scale-[0.99] disabled:opacity-60"
         >
-          {adding ? "..." : "+"}
+          {adding ? <Loader /> : "+"}
         </button>
       </div>
     </form>
