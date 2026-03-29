@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { Loader } from "@/app/components/Loader";
 
 type Mode = "sale" | "payment";
 
@@ -113,13 +114,19 @@ export function AddTransactionModal({ clientId, mode, onClose, onSuccess }: Prop
           <button
             disabled={loading}
             className={
-              "w-full rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 " +
+              "w-full flex items-center justify-center rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 " +
               (isSale
                 ? "bg-amber-400 text-slate-900"
                 : "bg-emerald-400 text-slate-900")
             }
           >
-            {loading ? "Збереження..." : title}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader className="text-slate-900" /> Збереження...
+              </div>
+            ) : (
+              title
+            )}
           </button>
         </form>
       </div>

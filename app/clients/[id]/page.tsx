@@ -9,6 +9,7 @@ import { ClientDetailHeader } from "./_components/ClientDetailHeader";
 import { TotalsCard } from "./_components/TotalsCard";
 import { TransactionList } from "./_components/TransactionList";
 import { AddTransactionModal } from "./_components/AddTransactionModal";
+import { Loader } from "@/app/components/Loader";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -80,7 +81,7 @@ export default function ClientDetailPage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-sky-700 via-sky-800 to-indigo-950
                       flex items-center justify-center">
-        <div className="text-white/60 text-sm">Завантаження...</div>
+        <Loader className="h-6 w-6 text-white/60" />
       </div>
     );
   }
@@ -112,9 +113,13 @@ export default function ClientDetailPage({ params }: PageProps) {
                          py-3 text-base font-semibold text-white shadow-lg
                          active:scale-[0.98] disabled:opacity-60"
             >
-              {closing
-                ? "Закриваємо..."
-                : `Закрити борг — ${formatUAH(totals.debt)}`}
+              {closing ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader /> Закриваємо...
+                </div>
+              ) : (
+                `Закрити борг — ${formatUAH(totals.debt)}`
+              )}
             </button>
           )}
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { setToken } from "@/lib/api";
+import { Loader } from "@/app/components/Loader";
 
 function GoogleIcon() {
   return (
@@ -177,7 +178,13 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full rounded-xl bg-slate-900/80 text-white font-semibold py-3 shadow-lg shadow-black/20 active:scale-[0.99] disabled:opacity-60"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader /> Signing in...
+                </div>
+              ) : (
+                "Sign in"
+              )}
             </button>
 
             {/* Divider */}
