@@ -8,8 +8,13 @@ import { ClientDetail, Totals, formatUAH } from "./_components/types";
 import { ClientDetailHeader } from "./_components/ClientDetailHeader";
 import { TotalsCard } from "./_components/TotalsCard";
 import { TransactionList } from "./_components/TransactionList";
-import { AddTransactionModal } from "./_components/AddTransactionModal";
 import { Loader } from "@/app/components/Loader";
+import dynamic from "next/dynamic";
+
+const AddTransactionModal = dynamic(
+  () => import("./_components/AddTransactionModal").then((mod) => mod.AddTransactionModal),
+  { ssr: false }
+);
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -53,11 +58,6 @@ export default function ClientDetailPage({ params }: PageProps) {
   async function closeDebt() {
     if (!clientId || !totals) return;
 
-    const confirmed = window.confirm(
-      `Закрити борг ${formatUAH(totals.debt)}?\n\nБуде створена оплата на цю суму.`
-    );
-    if (!confirmed) return;
-
     setClosing(true);
     try {
       await apiFetch(`/api/clients/${clientId}/close-debt`, {
@@ -67,10 +67,10 @@ export default function ClientDetailPage({ params }: PageProps) {
       queryClient.invalidateQueries({ queryKey: ["clients-summary"] });
     } catch (e: unknown) {
       if (e instanceof Error && e.message?.includes("Борг вже закритий")) {
-        alert("Борг вже закритий.");
+        console.warn("Борг вже закритий.");
       } else {
         const msg = e instanceof Error ? e.message : "Невідома помилка";
-        alert(`Не вдалося закрити борг. Помилка: ${msg}`);
+        console.error(`Не вдалося закрити борг. Помилка: ${msg}`);
       }
     } finally {
       setClosing(false);
@@ -111,7 +111,7 @@ export default function ClientDetailPage({ params }: PageProps) {
               disabled={closing}
               className="w-full mb-3 rounded-2xl bg-white/15 border border-white/20
                          py-3 text-base font-semibold text-white shadow-lg
-                         active:scale-[0.98] disabled:opacity-60"
+                         cursor-pointer active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {closing ? (
                 <div className="flex items-center justify-center gap-2">
@@ -128,14 +128,14 @@ export default function ClientDetailPage({ params }: PageProps) {
             <button
               onClick={() => setModal("sale")}
               className="rounded-2xl bg-amber-400 py-4 text-base font-semibold
-                         text-slate-900 shadow-lg active:scale-[0.98]"
+                         cursor-pointer text-slate-900 shadow-lg active:scale-[0.98]"
             >
               + Продаж
             </button>
             <button
               onClick={() => setModal("payment")}
               className="rounded-2xl bg-emerald-400 py-4 text-base font-semibold
-                         text-slate-900 shadow-lg active:scale-[0.98]"
+                         cursor-pointer text-slate-900 shadow-lg active:scale-[0.98]"
             >
               + Оплата
             </button>

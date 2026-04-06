@@ -1,4 +1,5 @@
 import { formatUAH } from "./types";
+import { Input } from "@/app/components/Input";
 
 type Props = {
   totalDebt: number;
@@ -26,12 +27,11 @@ export function ClientsHeader({ totalDebt, q, onChangeQuery, onLogout }: Props) 
       </div>
 
       <div className="mt-4">
-        <div className="text-xs text-white/70 mb-1.5">Пошук</div>
-        <input
+        <Input
+          label="Пошук"
           value={q}
           onChange={(e) => onChangeQuery(e.target.value)}
           placeholder="Наприклад: Іван"
-          className="w-full rounded-xl bg-white/90 text-slate-900 placeholder:text-slate-400 px-4 py-3 outline-none"
         />
       </div>
     </div>

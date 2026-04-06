@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { Loader } from "@/app/components/Loader";
+import { Input } from "@/app/components/Input";
 
 type Mode = "sale" | "payment";
 
@@ -67,7 +68,7 @@ export function AddTransactionModal({ clientId, mode, onClose, onSuccess }: Prop
           <h2 className="text-lg font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
-            className="text-white/60 active:text-white text-2xl leading-none"
+            className="cursor-pointer text-white/60 active:text-white text-2xl leading-none"
           >
             ×
           </button>
@@ -75,34 +76,22 @@ export function AddTransactionModal({ clientId, mode, onClose, onSuccess }: Prop
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Сума */}
-          <label className="block">
-            <div className="text-xs text-white/70 mb-1.5">
-              Сума (грн)
-            </div>
-            <input
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="Наприклад: 5000"
-              inputMode="numeric"
-              className="w-full rounded-xl bg-white/90 text-slate-900
-                         placeholder:text-slate-400 px-4 py-3 text-base outline-none"
-              autoFocus
-            />
-          </label>
+          <Input
+            label="Сума (грн)"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Наприклад: 5000"
+            inputMode="numeric"
+            autoFocus
+          />
 
           {/* Коментар */}
-          <label className="block">
-            <div className="text-xs text-white/70 mb-1.5">
-              Коментар (необов'язково)
-            </div>
-            <input
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder={isSale ? "Яблука, 200 кг" : "Часткова оплата"}
-              className="w-full rounded-xl bg-white/90 text-slate-900
-                         placeholder:text-slate-400 px-4 py-3 text-base outline-none"
-            />
-          </label>
+          <Input
+            label="Коментар (необов'язково)"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder={isSale ? "Яблука, 200 кг" : "Часткова оплата"}
+          />
 
           {err && (
             <div className="rounded-xl bg-black/25 border border-white/10 px-4 py-3 text-sm text-white/90">
@@ -114,7 +103,7 @@ export function AddTransactionModal({ clientId, mode, onClose, onSuccess }: Prop
           <button
             disabled={loading}
             className={
-              "w-full flex items-center justify-center rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 " +
+              "cursor-pointer w-full flex items-center justify-center rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed " +
               (isSale
                 ? "bg-amber-400 text-slate-900"
                 : "bg-emerald-400 text-slate-900")

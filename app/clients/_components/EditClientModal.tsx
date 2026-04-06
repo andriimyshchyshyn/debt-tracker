@@ -3,6 +3,7 @@ import { apiFetch } from "@/lib/api";
 import { Loader } from "@/app/components/Loader";
 import { ClientSummary } from "./types";
 import { useMutation } from "@tanstack/react-query";
+import { Input } from "@/app/components/Input";
 
 type Props = {
   client: ClientSummary;
@@ -61,41 +62,33 @@ export function EditClientModal({ client, onClose, onSuccess }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="text-white/60 active:text-white text-2xl leading-none"
+            className="cursor-pointer text-white/60 active:text-white text-2xl leading-none"
           >
             ×
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block">
-            <div className="text-xs text-white/70 mb-1.5">Ім'я</div>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl bg-white/90 text-slate-900 placeholder:text-slate-400 px-4 py-3 text-base outline-none"
-              autoFocus
-            />
-          </label>
+          <Input
+            label="Ім'я"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoFocus
+          />
 
-          <label className="block">
-            <div className="text-xs text-white/70 mb-1.5">Телефон</div>
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+380..."
-              className="w-full rounded-xl bg-white/90 text-slate-900 placeholder:text-slate-400 px-4 py-3 text-base outline-none"
-            />
-          </label>
+          <Input
+            label="Телефон"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+380..."
+          />
 
-          <label className="block">
-            <div className="text-xs text-white/70 mb-1.5">Нотатка</div>
-            <input
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="w-full rounded-xl bg-white/90 text-slate-900 placeholder:text-slate-400 px-4 py-3 text-base outline-none"
-            />
-          </label>
+          <Input
+            label="Нотатка"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+
 
           {err && (
             <div className="rounded-xl bg-black/25 border border-white/10 px-4 py-3 text-sm text-white/90">
@@ -106,7 +99,7 @@ export function EditClientModal({ client, onClose, onSuccess }: Props) {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="w-full flex items-center justify-center rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 bg-sky-400 text-slate-900"
+            className="cursor-pointer w-full flex items-center justify-center rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed bg-sky-400 text-slate-900"
           >
             {mutation.isPending ? (
               <div className="flex items-center justify-center gap-2">
@@ -118,6 +111,6 @@ export function EditClientModal({ client, onClose, onSuccess }: Props) {
           </button>
         </form>
       </div>
-    </div>
+    </div >
   );
 }
