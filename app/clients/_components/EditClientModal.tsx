@@ -62,7 +62,7 @@ export function EditClientModal({ client, onClose, onSuccess }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="text-white/60 active:text-white text-2xl leading-none"
+            className="cursor-pointer text-white/60 active:text-white text-2xl leading-none"
           >
             ×
           </button>
@@ -99,7 +99,7 @@ export function EditClientModal({ client, onClose, onSuccess }: Props) {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="w-full flex items-center justify-center rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 bg-sky-400 text-slate-900"
+            className="cursor-pointer w-full flex items-center justify-center rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed bg-sky-400 text-slate-900"
           >
             {mutation.isPending ? (
               <div className="flex items-center justify-center gap-2">

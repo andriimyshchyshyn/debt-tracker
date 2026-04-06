@@ -68,7 +68,7 @@ export function AddTransactionModal({ clientId, mode, onClose, onSuccess }: Prop
           <h2 className="text-lg font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
-            className="text-white/60 active:text-white text-2xl leading-none"
+            className="cursor-pointer text-white/60 active:text-white text-2xl leading-none"
           >
             ×
           </button>
@@ -103,7 +103,7 @@ export function AddTransactionModal({ clientId, mode, onClose, onSuccess }: Prop
           <button
             disabled={loading}
             className={
-              "w-full flex items-center justify-center rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 " +
+              "cursor-pointer w-full flex items-center justify-center rounded-xl py-3 text-base font-semibold shadow active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed " +
               (isSale
                 ? "bg-amber-400 text-slate-900"
                 : "bg-emerald-400 text-slate-900")
