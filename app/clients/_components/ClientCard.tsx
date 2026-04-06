@@ -6,7 +6,12 @@ import { ClientSummary } from "./types";
 import { ClientCardStats } from "./ClientCardStats";
 import { ClientCardMenu } from "./ClientCardMenu";
 import { useState } from "react";
-import { EditClientModal } from "./EditClientModal";
+import dynamic from "next/dynamic";
+
+const EditClientModal = dynamic(
+  () => import("./EditClientModal").then((mod) => mod.EditClientModal),
+  { ssr: false }
+);
 
 export function ClientCard({ client }: { client: ClientSummary }) {
   const router = useRouter();

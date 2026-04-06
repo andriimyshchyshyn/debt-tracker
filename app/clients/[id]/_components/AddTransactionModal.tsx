@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { Loader } from "@/app/components/Loader";
+import { Input } from "@/app/components/Input";
 
 type Mode = "sale" | "payment";
 
@@ -75,34 +76,22 @@ export function AddTransactionModal({ clientId, mode, onClose, onSuccess }: Prop
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Сума */}
-          <label className="block">
-            <div className="text-xs text-white/70 mb-1.5">
-              Сума (грн)
-            </div>
-            <input
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="Наприклад: 5000"
-              inputMode="numeric"
-              className="w-full rounded-xl bg-white/90 text-slate-900
-                         placeholder:text-slate-400 px-4 py-3 text-base outline-none"
-              autoFocus
-            />
-          </label>
+          <Input
+            label="Сума (грн)"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Наприклад: 5000"
+            inputMode="numeric"
+            autoFocus
+          />
 
           {/* Коментар */}
-          <label className="block">
-            <div className="text-xs text-white/70 mb-1.5">
-              Коментар (необов'язково)
-            </div>
-            <input
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder={isSale ? "Яблука, 200 кг" : "Часткова оплата"}
-              className="w-full rounded-xl bg-white/90 text-slate-900
-                         placeholder:text-slate-400 px-4 py-3 text-base outline-none"
-            />
-          </label>
+          <Input
+            label="Коментар (необов'язково)"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder={isSale ? "Яблука, 200 кг" : "Часткова оплата"}
+          />
 
           {err && (
             <div className="rounded-xl bg-black/25 border border-white/10 px-4 py-3 text-sm text-white/90">

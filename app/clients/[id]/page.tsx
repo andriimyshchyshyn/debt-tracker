@@ -8,8 +8,13 @@ import { ClientDetail, Totals, formatUAH } from "./_components/types";
 import { ClientDetailHeader } from "./_components/ClientDetailHeader";
 import { TotalsCard } from "./_components/TotalsCard";
 import { TransactionList } from "./_components/TransactionList";
-import { AddTransactionModal } from "./_components/AddTransactionModal";
 import { Loader } from "@/app/components/Loader";
+import dynamic from "next/dynamic";
+
+const AddTransactionModal = dynamic(
+  () => import("./_components/AddTransactionModal").then((mod) => mod.AddTransactionModal),
+  { ssr: false }
+);
 
 type PageProps = {
   params: Promise<{ id: string }>;
